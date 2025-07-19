@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ed6818cb-cade-4e89-a9e6-1749f1bbc6f7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/TradeMon.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tester/.dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tester/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tester/tests/test_inference.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worker/.dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worker/app/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worker/app/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worker/requirements.txt" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Dockerfile" />
+        <option value="Python Script" />
+        <option value="package.json" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2zeMrXUTE7sZoqttGtTJPlg1V3c" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.client/.dockerfile.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose.yml.client: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/mukch/projects/TradeMon/worker&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\mukch\projects\TradeMon\worker" />
+      <recent name="C:\Users\mukch\projects\TradeMon" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mukch\projects\TradeMon\tester\test" />
+      <recent name="C:\Users\mukch\projects\TradeMon\tester" />
+      <recent name="C:\Users\mukch\projects\TradeMon\client" />
+      <recent name="C:\Users\mukch\projects\TradeMon\inference" />
+      <recent name="C:\Users\mukch\projects\TradeMon" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Docker.docker-compose.yml.client: Compose Deployment">
+    <configuration name="client/.dockerfile" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="sourceFilePath" value="client/.dockerfile" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="sourceFilePath" value="docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="docker-compose.yml.client: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="services">
+            <list>
+              <option value="client" />
+            </list>
+          </option>
+          <option name="sourceFilePath" value="docker-compose.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.docker-compose.yml.client: Compose Deployment" />
+        <item itemvalue="Docker.client/.dockerfile" />
+        <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-PY-251.26094.141" />
+        <option value="bundled-python-sdk-9f8e2b94138c-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.26094.141" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ed6818cb-cade-4e89-a9e6-1749f1bbc6f7" name="Changes" comment="" />
+      <created>1752087286254</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1752087286254</updated>
+      <workItem from="1752087287190" duration="79000" />
+      <workItem from="1752087715434" duration="10023000" />
+      <workItem from="1752128144993" duration="1856000" />
+      <workItem from="1752156961080" duration="2484000" />
+      <workItem from="1752176388201" duration="3456000" />
+      <workItem from="1752182183731" duration="1161000" />
+      <workItem from="1752190887030" duration="1913000" />
+      <workItem from="1752195544592" duration="4807000" />
+      <workItem from="1752353082868" duration="12612000" />
+      <workItem from="1752367277568" duration="261000" />
+      <workItem from="1752380773365" duration="2260000" />
+      <workItem from="1752428238661" duration="2649000" />
+      <workItem from="1752452486599" duration="8149000" />
+      <workItem from="1752542053334" duration="5284000" />
+      <workItem from="1752627099168" duration="2316000" />
+      <workItem from="1752735595140" duration="2848000" />
+      <workItem from="1752907898339" duration="856000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

@@ -1,0 +1,4 @@
+llama-cpp-python
+pytest
+pytest-repeat
+requests
