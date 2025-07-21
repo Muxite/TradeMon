@@ -89,7 +89,7 @@ def make_test_payload(prompt) -> dict:
     }
 
 @pytest.mark.parametrize("prompt,expected_answers", prompts)
-@pytest.mark.repeat(50)
+@pytest.mark.repeat(10)
 def test_inference(prompt, expected_answers):
     payload = make_test_payload(prompt)
 

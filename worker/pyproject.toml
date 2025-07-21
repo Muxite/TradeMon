@@ -1,0 +1,24 @@
+[project]
+name = "worker"
+version = "0.1.0"
+description = "TradeMon service that gathers data."
+requires-python = ">=3.8"
+
+dependencies = [
+  "pytest",
+  "pytest-repeat",
+  "aiohttp",
+  "asyncio",
+  "pytest-asyncio",
+]
+
+[tool.setuptools]
+package-dir = {"" = "."}
+packages = ["app"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "INFO"

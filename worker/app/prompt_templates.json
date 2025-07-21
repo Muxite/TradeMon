@@ -1,0 +1,58 @@
+{
+  "SUPER": {
+    "prompt": "FOR {{TICKER}} AS OF {{TIME}}, FROM THE PROVIDED HTML, EXTRACT ALL THE FOLLOWING METRICS IF AVAILABLE:\n- PRICE-TO-EARNINGS RATIO (PE_RATIO)\n- EARNINGS PER SHARE (EPS)\n- DIVIDEND YIELD (DIVIDEND_YIELD)\n- MARKET CAPITALIZATION IN USD (MARKET_CAP_USD)\n- BETA VOLATILITY (BETA)\n- DAILY TRADING VOLUME (VOLUME)\n- ANALYST RATING (ANALYST_RATING)\n- ANALYST COUNT (ANALYST_COUNT)\n- ANALYST AVERAGE PRICE TARGET (PRICE_TARGET_USD)\n- INSIDER BUYS AND SELLS (INSIDER_BUYS, INSIDER_SELLS)\n- SHORT INTEREST PERCENTAGE (SHORT_INTEREST_PERCENT)\n- MOST RECENT QUARTERLY REVENUE (REVENUE_USD)\n- MOST RECENT QUARTERLY NET INCOME (NET_INCOME_USD)\n- MOST RECENT FREE CASH FLOW (FREE_CASH_FLOW_USD)\n- INSTITUTIONAL OWNERSHIP PERCENTAGE (INSTITUTIONAL_OWNERSHIP_PERCENT)\n\nRETURN ONLY A SINGLE JSON OBJECT WITH ALL KEYS IN ALL CAPS. IF SOMETHING IS MISSING, SET IT TO NULL. ALL VALUES MUST BE NUMBERS ONLY (NO % OR UNITS) EXCEPT ANALYST_RATING WHICH CAN BE A STRING.\n\nEXAMPLE:\n{\n  \"PE_RATIO\": 25.3,\n  \"EPS\": 4.12,\n  \"DIVIDEND_YIELD\": 0.57,\n  \"MARKET_CAP_USD\": 2850000000000,\n  \"BETA\": 1.22,\n  \"VOLUME\": 55600000,\n  \"ANALYST_RATING\": \"BUY\",\n  \"ANALYST_COUNT\": 32,\n  \"PRICE_TARGET_USD\": 195.5,\n  \"INSIDER_BUYS\": 3,\n  \"INSIDER_SELLS\": 12,\n  \"SHORT_INTEREST_PERCENT\": 1.3,\n  \"REVENUE_USD\": 91000000000,\n  \"NET_INCOME_USD\": 22000000000,\n  \"FREE_CASH_FLOW_USD\": 18500000000,\n  \"INSTITUTIONAL_OWNERSHIP_PERCENT\": 65.4\n}",
+    "search": "{{TICKER}} key stock statistics including P/E ratio, EPS, dividend yield, market cap, beta, volume, analyst ratings, price target, insider trades, short interest, revenue, net income, free cash flow, and institutional ownership site:finance.yahoo.com OR site:marketwatch.com OR site:macrotrends.net OR site:finviz.com after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "PE_RATIO": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE PRICE-TO-EARNINGS (P/E) RATIO FROM THE HTML. IF MULTIPLE VALUES EXIST, PICK THE ONE CLOSEST TO {{TIME}}. RETURN ONLY A JSON LIKE {\"PE_RATIO\": <NUMERIC_VALUE_OR_NULL>}.",
+    "search": "{{TICKER}} stock P/E ratio site:finance.yahoo.com OR site:marketwatch.com after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "EPS": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE EARNINGS PER SHARE (EPS), PREFERABLY TTM OR MOST RECENT QUARTER. RETURN ONLY A JSON LIKE {\"EPS\": <NUMERIC_VALUE_OR_NULL>}.",
+    "search": "{{TICKER}} EPS earnings per share site:finance.yahoo.com OR site:investing.com after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "DIVIDEND_YIELD": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE DIVIDEND YIELD. RETURN ONLY A JSON LIKE {\"DIVIDEND_YIELD\": <NUMERIC_VALUE_OR_NULL>} WITHOUT % SIGN.",
+    "search": "{{TICKER}} dividend yield site:finance.yahoo.com OR site:marketbeat.com after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "MARKET_CAP": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE MARKET CAPITALIZATION AND RETURN IT AS A PURE NUMBER IN USD. RETURN ONLY A JSON LIKE {\"MARKET_CAP_USD\": <NUMERIC_VALUE_OR_NULL>}.",
+    "search": "{{TICKER}} market capitalization site:finance.yahoo.com OR site:macrotrends.net after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "BETA_VOLATILITY": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE STOCK'S BETA VOLATILITY. RETURN ONLY A JSON LIKE {\"BETA\": <NUMERIC_VALUE_OR_NULL>}.",
+    "search": "{{TICKER}} stock beta volatility site:finance.yahoo.com OR site:marketwatch.com after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "VOLUME": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE DAILY TRADING VOLUME. RETURN ONLY A JSON LIKE {\"VOLUME\": <NUMERIC_VALUE_OR_NULL>}.",
+    "search": "{{TICKER}} daily trading volume site:finance.yahoo.com OR site:investing.com after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "NEWS_SENTIMENT": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, SCAN NEWS HEADLINES AND SUMMARIZE THEIR SENTIMENT AS 2 (VERY_POSITIVE), 1 (POSITIVE), 0 (NEUTRAL), -1 (NEGATIVE), OR -2 (VERY_NEGATIVE). RETURN ONLY A JSON LIKE {\"NEWS_SENTIMENT\": <NUMERIC_VALUE>}.",
+    "search": "{{TICKER}} latest stock news headlines after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "PRICE_TARGET": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE MOST RECENT ANALYST AVERAGE PRICE TARGET. RETURN ONLY A JSON LIKE {\"PRICE_TARGET_USD\": <NUMERIC_VALUE_OR_NULL>}.",
+    "search": "{{TICKER}} analyst average price target site:finance.yahoo.com OR site:marketbeat.com after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "SHORT_INTEREST": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE SHORT INTEREST PERCENTAGE OF FLOAT. RETURN ONLY A JSON LIKE {\"SHORT_INTEREST_PERCENT\": <NUMERIC_VALUE_OR_NULL>} WITHOUT % SIGN.",
+    "search": "{{TICKER}} short interest percentage site:marketbeat.com OR site:finviz.com after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "REVENUE": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE MOST RECENT QUARTERLY REVENUE. RETURN ONLY A JSON LIKE {\"REVENUE_USD\": <NUMERIC_VALUE_OR_NULL>}.",
+    "search": "{{TICKER}} quarterly revenue site:finance.yahoo.com OR site:macrotrends.net after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "NET_INCOME": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE MOST RECENT QUARTERLY NET INCOME. RETURN ONLY A JSON LIKE {\"NET_INCOME_USD\": <NUMERIC_VALUE_OR_NULL>}.",
+    "search": "{{TICKER}} quarterly net income site:finance.yahoo.com OR site:macrotrends.net after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "FREE_CASH_FLOW": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE MOST RECENT FREE CASH FLOW (FCF). RETURN ONLY A JSON LIKE {\"FREE_CASH_FLOW_USD\": <NUMERIC_VALUE_OR_NULL>}.",
+    "search": "{{TICKER}} free cash flow site:macrotrends.net OR site:finbox.com after:{{DATE_MINUS}} before:{{TIME}}"
+  },
+  "INSTITUTIONAL_OWNERSHIP": {
+    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE INSTITUTIONAL OWNERSHIP PERCENTAGE. RETURN ONLY A JSON LIKE {\"INSTITUTIONAL_OWNERSHIP_PERCENT\": <NUMERIC_VALUE_OR_NULL>} WITHOUT % SIGN.",
+    "search": "{{TICKER}} institutional ownership site:marketbeat.com OR site:finviz.com after:{{DATE_MINUS}} before:{{TIME}}"
+  }
+}
