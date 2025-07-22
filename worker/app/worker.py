@@ -5,6 +5,7 @@ import logging
 import asyncio
 from shared.payloads import *
 from shared.rate_limiter import RateLimiter
+import datetime
 
 
 def discard_goals(remaining_goals: set[str], extracted_results: dict) -> set[str]:
@@ -21,9 +22,10 @@ def discard_goals(remaining_goals: set[str], extracted_results: dict) -> set[str
                                             or extracted_results[goal] in (None, "", "null")
     }
 
+
 def date_minus(date, days):
-    import datetime
     return (datetime.datetime.strptime(date, "%Y-%m-%d") - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
+
 
 class Worker:
     def __init__(self):
