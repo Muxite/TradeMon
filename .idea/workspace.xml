@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ed6818cb-cade-4e89-a9e6-1749f1bbc6f7" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker/app/worker.py" beforeDir="false" afterPath="$PROJECT_DIR$/worker/app/worker.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/worker/tests/test_search.py" beforeDir="false" afterPath="$PROJECT_DIR$/worker/tests/test_worker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/payloads.py" beforeDir="false" afterPath="$PROJECT_DIR$/shared/payloads.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worker/tests/test_worker.py" beforeDir="false" afterPath="$PROJECT_DIR$/worker/tests/test_worker.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -184,7 +184,7 @@
       <workItem from="1752990110062" duration="4903000" />
       <workItem from="1753032133416" duration="25892000" />
       <workItem from="1753122385518" duration="14863000" />
-      <workItem from="1753158106045" duration="6242000" />
+      <workItem from="1753158106045" duration="7757000" />
     </task>
     <servers />
   </component>

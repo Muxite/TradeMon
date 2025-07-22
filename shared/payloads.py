@@ -53,13 +53,20 @@ def make_news_payload(template, time, ticker, count) -> dict:
 
     return params
 
-def package_web_results(web_results : dict) -> str :
+def package_web_results(web_results: dict) -> str:
     """
     Convert a dict of web results into a single string.
     :param web_results: A dict of web results from the API.
     :return: A large formatted string ready for LLM extraction.
     """
     package = ""
-    for num, result in enumerate(web_results["web"]["results"]):
-        package += f"Website #{num}: {result['title']}\n{result['extra_snippets']}\n\n"
+    if "web" in web_results and "results" in web_results["web"]:
+        for num, result in enumerate(web_results["web"]["results"]):
+            package += f"Website #{num}: {result.get('title', '')}\n"
+            if "description" in result:
+                package += f"{result['description']}\n"
+            if "extra_snippets" in result and result["extra_snippets"]:
+                for snippet in result["extra_snippets"]:
+                    package += f"{snippet}\n"
+            package += "\n"
     return package
