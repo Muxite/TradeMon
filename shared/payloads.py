@@ -1,3 +1,9 @@
+import datetime
+
+def date_minus(date, days):
+    return (datetime.datetime.strptime(date, "%Y-%m-%d") - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
+
+
 def make_llm_payload(template, time, ticker, html_content) -> dict:
     content = (template
                .replace("{{TICKER}}", ticker)
@@ -25,10 +31,11 @@ def make_llm_payload(template, time, ticker, html_content) -> dict:
         "response_format": {"type": "json_object"}
     }
 
-def make_web_payload(template, time, ticker) -> dict:
+def make_web_payload(template, time, ticker, period=90) -> dict:
     content = (template
                .replace("{{TICKER}}", ticker)
-               .replace("{{TIME}}", time))
+               .replace("{{TIME}}", time)
+               .replace("{{DATE_MINUS}}", date_minus(time, period)))
 
     params = {
         "q": content,
@@ -39,10 +46,11 @@ def make_web_payload(template, time, ticker) -> dict:
 
     return params
 
-def make_news_payload(template, time, ticker, count) -> dict:
+def make_news_payload(template, time, ticker, count, period=90) -> dict:
     content = (template
                .replace("{{TICKER}}", ticker)
-               .replace("{{TIME}}", time))
+               .replace("{{TIME}}", time)
+               .replace("{{DATE_MINUS}}", date_minus(time, period)))
 
     params = {
         "q": content,

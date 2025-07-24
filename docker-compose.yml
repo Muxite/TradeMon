@@ -31,6 +31,37 @@ services:
       - ./worker/tests:/worker/tests
     depends_on:
       - inference
+    entrypoint: [""]
+    env_file:
+      - .env
+    environment:
+      - MODEL_API_URL=http://inference:8000
+      - PROMPT_TEMPLATES_PATH=/worker/app/prompt_templates.json
+      - SEARCH_API_URL_WEB=https://api.search.brave.com/res/v1/web/search
+      - SEARCH_API_URL_NEWS=https://api.search.brave.com/res/v1/news/search
+      - PYTHONPATH=/worker:/worker/shared
+      - REDIS_URL=redis://cache:6379/0
+
+
+  cache:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --save 180 1 --loglevel warning
+
+
+  worker-test:
+    build:
+      context: ./worker
+      dockerfile: .dockerfile
+    volumes:
+      - ./SHARED:/worker/shared
+      - ./worker/app:/worker/app
+      - ./worker/tests:/worker/tests
+    depends_on:
+      - inference
     entrypoint: ["pytest"]
     command: ["-v", "-s", "--log-cli-level=INFO"]
     env_file:
@@ -41,6 +72,8 @@ services:
       - SEARCH_API_URL_WEB=https://api.search.brave.com/res/v1/web/search
       - SEARCH_API_URL_NEWS=https://api.search.brave.com/res/v1/news/search
       - PYTHONPATH=/worker:/worker/shared
+      - REDIS_URL=redis://cache:6379/0
+
 
   tester:
     profiles: ["test"]
