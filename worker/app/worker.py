@@ -5,9 +5,7 @@ import logging
 import asyncio
 from shared.payloads import *
 from shared.rate_limiter import RateLimiter
-import datetime
 from redis.asyncio import Redis
-
 
 
 def discard_goals(remaining_goals: set[str], extracted_results: dict) -> set[str]:
@@ -24,7 +22,7 @@ def discard_goals(remaining_goals: set[str], extracted_results: dict) -> set[str
                                             or extracted_results[goal] in (None, "", "null")
     }
 
-
+#TODO make Worker into Scraper as a child class of a generalized worker.
 class Worker:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
@@ -38,6 +36,8 @@ class Worker:
         self.session = None
         self.redis = None
         self.redis_url = os.environ.get("REDIS_URL")
+        self.queries_name = os.environ.get("QUERIES_NAME")  # query is ticker, date.
+        self.metrics_name = os.environ.get("METRICS_NAME")
 
 
     async def wait_for_llm(self, max_attempts: int = 120, timeout: int = 10) -> bool:
@@ -90,7 +90,7 @@ class Worker:
             await self.redis.ping()
             return True
         except Exception as e:
-            self.logger.error(f"Redis connection failed: {str(e)}")
+            self.logger.error(f"REDIS CONNECTION FAILED: {str(e)}")
             return False
 
 
@@ -116,7 +116,7 @@ class Worker:
             self.session = None
 
         if self.redis is not None:
-            await self.redis.close()
+            await self.redis.aclose()
             self.redis = None
 
 
@@ -130,17 +130,19 @@ class Worker:
         await self.close_connection()
 
 
-    async def llm_extract(self, time: str, ticker: str, goal: str, content: str) -> dict:
+    async def llm_extract(self, date: str, ticker: str, goal: str, content: str) -> dict:
         """
         Send a request to the LLM and return the predicted price with a dict response.
-        param ticker: The ticker symbol of the stock.
-        param goal: The value to extract.
+        :param date: The latest date of the stock to search for.
+        :param ticker: The ticker symbol of the stock.
+        :param goal: The value to extract.
+        :param content: The content to extract from.
 
         :return dict: key-value pair(s).
         """
 
         prompt = self.prompt_templates[goal]["prompt"]
-        payload = make_llm_payload(prompt, time, ticker, content)
+        payload = make_llm_payload(prompt, date, ticker, content)
 
         await self.rate_limiter.acquire()
         async with self.session.post(self.llm_url, json=payload) as resp:
@@ -152,17 +154,22 @@ class Worker:
         except json.JSONDecodeError:
             return {}
 
-    async def search_internet(self, date: str, ticker: str, goal: str) -> dict:
+    async def search_internet(self, date: str, ticker: str, goal: str, count=5) -> dict:
         """
         Search the internet for the goal for the ticker and date.
         :param date: The date to search for.
         :param ticker: The ticker symbol to search for.
         :param goal: The goal to choose a template for.
+        :param count: Number of pages to search for.
         :return dict: The search results.
         """
 
-        search_api_url = self.search_api_url_web
-        params = make_web_payload(self.prompt_templates[goal]["search"], date, ticker)
+        if self.prompt_templates[goal]["api"] == "news":
+            search_api_url = self.search_api_url_news
+        else:
+            search_api_url = self.search_api_url_web
+
+        params = make_search_payload(self.prompt_templates[goal]["search"], date, ticker, count)
 
         await self.rate_limiter.acquire()
         async with self.session.get(
@@ -174,51 +181,50 @@ class Worker:
                 },
                 params=params) as resp:
             results = await resp.json()
-
-        return results
+        #TODO make overarching search.
+        if self.prompt_templates[goal]["api"] == "news":
+            result_field = results["results"]
+        else:
+            result_field = results["web"]["results"]
+        return result_field
 
     async def process_goal(self, date: str, ticker: str, goal : str) -> dict:
-        html_content = await self.search_internet(date, ticker, goal)
-        packaged = package_web_results(html_content)
-        results = await self.llm_extract(date, ticker, goal, packaged)
+        if self.prompt_templates[goal]["type"] == "single":
+            html_content = await self.search_internet(date, ticker, goal)
+            packaged = package_web_results(html_content)
+            results = await self.llm_extract(date, ticker, goal, packaged)
+        else:
+            results = await self.get_aggregate(date, ticker, goal)
+
         return results
 
-    async def news_sentiment_analysis(self, date: str, ticker: str, count=10) -> dict:
+    async def get_aggregate(self, date: str, ticker: str, goal : str, count=20) -> dict:
         """
-        A special goal that aggregates many news sources together to create a combined number.
+        Goes per-site and combines sentiments into a single number.
         :param date: Date to search for.
         :param ticker: The ticker symbol to search for.
+        :param goal: The goal to choose a template for.
         :param count: Number of news articles to search for.
 
         :return dict: key and value pair.
         """
         sum = 0
+        valid_responses = 0
 
-        search_api_url = self.search_api_url_news
-        params = make_news_payload(self.prompt_templates["NEWS_SENTIMENT"]["search"], date, ticker, count)
-        async with self.session.get(
-                search_api_url,
-                headers={
-                    "Accept": "application/json",
-                    "Accept-Encoding": "gzip",
-                    "x-subscription-token": str(self.search_api_key)
-                },
-                params=params) as resp:
-            response = await resp.json()
-
-            results = response["results"]
+        results = await self.search_internet(date, ticker, goal, count)
 
         for result in results:
-            to_read = result.get("extra_snippets", "")
+            to_read = f"{result.get('description', '')}\n\n{result.get('extra_snippets', '')}"
             if to_read != "":
-                answer = await self.llm_extract(date, ticker, "NEWS_SENTIMENT", to_read)
+                answer = await self.llm_extract(date, ticker, goal, to_read)
                 try:
-                    num_answer = float(answer["NEWS_SENTIMENT"])
+                    num_answer = float(answer[goal])
                     sum += num_answer
+                    valid_responses += 1
                 except KeyError:
                     self.logger.warning(f"Invalid answer from LLM: {answer}")
-        sentiment = sum/count
-        return {"NEWS_SENTIMENT": sentiment}
+        sentiment = sum/valid_responses
+        return {goal: sentiment}
 
     async def get_all_metrics(self, date: str, ticker: str) -> dict:
         if self.session is None:
@@ -227,21 +233,61 @@ class Worker:
         remaining_goals = set(self.prompt_templates.keys())
         results = {}
 
-        # Super search should be done first, to clear as many goals as possible.
-
-        if "NEWS_SENTIMENT" in remaining_goals:
-            remaining_goals.remove("NEWS_SENTIMENT")
-            result = await self.news_sentiment_analysis(date, ticker)
-            results.update(result)
+        #TODO add super search to get many goals in 1 request.
 
         if remaining_goals:
-            tasks = [self.process_goal(date, ticker, goal) for goal in remaining_goals]
-            goal_results = await asyncio.gather(*tasks)
-            for result in goal_results:
+            for goal in remaining_goals.copy():
+                result = await self.process_goal(date, ticker, goal)
                 results.update(result)
-                remaining_goals.discard(result.keys()[0])
+                discard_goals(remaining_goals, result)
+
         return results
 
+    async def process_task(self, task_dict: dict):
+        """Process a single task from Redis"""
+        try:
+            self.logger.info(f"Processing task: {task_dict}")
+            ticker = task_dict["ticker"]
+            date = task_dict["date"]
+
+            metrics = await self.get_all_metrics(date, ticker)
+
+            result = {
+                "ticker": ticker,
+                "date": date,
+                "metrics": metrics
+            }
+
+            return result
+
+        except KeyError as e:
+            self.logger.error(f"Missing key {e}")
+        except Exception as e:
+            self.logger.error(f"Processing failed {task_dict}: {str(e)}")
+
+    async def run_worker(self):
+        """Main worker loop that processes tasks from Redis"""
+        await self.open_connection()
+        self.logger.info("WORKER STARTED, NOW WAITING FOR TASKS.")
+
+        try:
+            while True:
+                _, task_json = await self.redis.blpop([self.queries_name], timeout=0)  # tuple (title, content)
+                if task_json:
+                    try:
+                        task_dict = json.loads(task_json.decode('utf-8'))
+                        package = await self.process_task(task_dict)
+                        await self.redis.sadd(self.metrics_name, json.dumps(package))
+                    except json.JSONDecodeError:
+                        self.logger.error(f"Invalid JSON task: {task_json}")
+
+        except asyncio.CancelledError:
+            self.logger.info("Worker shutdown requested")
+        except Exception as e:
+            self.logger.error(f"Error in loop: {str(e)}")
+        finally:
+            await self.close_connection()
+            self.logger.info("Worker shutdown complete")
+
 if __name__ == "__main__":
-    import asyncio
-    import time
+    pass

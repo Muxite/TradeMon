@@ -5,6 +5,13 @@ import logging
 
 worker = Worker()
 
+def search_log(logger, ticker, date, goal):
+    logger.info(f"\nTesting process_goal with: {ticker} {date} {goal}")
+    search_term = str(worker.prompt_templates[goal]["search"]
+                      .replace("{{TICKER}}", ticker))
+
+    logger.info(f"\nSearch Term: {search_term}")
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("ticker, date, goal", [
@@ -25,21 +32,10 @@ async def test_search_internet_real(ticker, date, goal):
     try:
         assert goal in worker.prompt_templates, f"Goal '{goal}' invalid"
 
-        logger.info(f"\nTesting search_internet with: {ticker} {date} {goal}")
-
-        date_after = date_minus(date, 90)
-        search_term = str(worker.prompt_templates[goal]["search"]
-                   .replace("{{TICKER}}", ticker)
-                        .replace("{{TIME}}", date)
-                        .replace("{{DATE_MINUS}}", date_after))
-
-        logger.info(f"\nSearch Term: {search_term}")
-
         result = await worker.search_internet(date, ticker, goal)
         packaged = package_web_results(result)
 
-        assert isinstance(result, dict)
-        assert "web" in result
+        assert isinstance(result, list)
         assert packaged != ""
         logger.info(f"\nPackage:\n{packaged[:256]}")
 
@@ -49,8 +45,8 @@ async def test_search_internet_real(ticker, date, goal):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("ticker, date, goal", [
-    ("NVDA", "2022-01-25", "PE_RATIO"),
-    ("", "2022-01-25", "PE_RATIO"),
+    ("AMZN", "2024-06-04", "EPS"),
+    ("ORCL", "2024-06-04", "NEWS_SENTIMENT"),
 ])
 async def test_process_goal_real(ticker, date, goal):
     """
@@ -67,15 +63,14 @@ async def test_process_goal_real(ticker, date, goal):
     try:
         assert goal in worker.prompt_templates, f"Goal '{goal}' invalid"
 
-        logger.info(f"\nTesting process_goal with: {ticker} {date} {goal}")
+        search_log(logger, ticker, date, goal)
 
         result = await worker.process_goal(date, ticker, goal)
 
         logger.info(f"\nExtracted Results: {result}")
 
-        assert isinstance(result, dict), "Result should be a dictionary"
+        assert isinstance(result, dict), "Result should be a dict"
         assert goal in result, f"Result should contain the goal {goal}"
-
 
     finally:
         await worker.close_connection()
@@ -83,12 +78,11 @@ async def test_process_goal_real(ticker, date, goal):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("ticker, date", [
-    ("AAPL", "2024-01-25")
+    ("JPM", "2023-01-01")
 ])
-async def test_news_sentiment_analysis_real(ticker, date):
+async def test_get_all_metrics_real(ticker, date):
     """
-    Test the news_sentiment_analysis method.
-
+    Test the get_all_metrics method.
     :param ticker: The ticker symbol to search for.
     :param date: The date to search for in YYYY-MM-DD
     """
@@ -97,13 +91,17 @@ async def test_news_sentiment_analysis_real(ticker, date):
     logger = logging.getLogger(__name__)
 
     try:
-        logger.info(f"\nTesting news_sentiment_analysis with: {ticker} {date}")
+        logger.info(f"\nTesting get_all_metrics with: {ticker} {date}")
 
-        result = await worker.news_sentiment_analysis(date, ticker)
+        result = await worker.get_all_metrics(date, ticker)
 
-        logger.info(f"\nSentiment Result: {result}")
+        logger.info(f"\nMetrics Result: {result}")
 
-        assert isinstance(result["NEWS_SENTIMENT"], (int, float)), "Result should be a numeric value"
+        assert isinstance(result, dict), "Result should be a dictionary"
+        assert len(result) > 0, "The result should contain metrics"
+        assert all(isinstance(value, (int, float, type(None))) for value in result.values()), \
+            "All metric values should be numbers or None"
 
     finally:
         await worker.close_connection()
+

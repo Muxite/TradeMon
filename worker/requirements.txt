@@ -2,3 +2,5 @@ pytest
 pytest-repeat
 aiohttp
 asyncio
+pytest-asyncio
+redis

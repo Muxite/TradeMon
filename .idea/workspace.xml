@@ -5,13 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ed6818cb-cade-4e89-a9e6-1749f1bbc6f7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/keys.env" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/stocker/.dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/stocker/app/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/stocker/app/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/stocker/app/prompt_templates.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/stocker/app/stocker.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/stocker/pyproject.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/stocker/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/TradeMon.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/TradeMon.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/payloads.py" beforeDir="false" afterPath="$PROJECT_DIR$/shared/payloads.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/shared/rate_limiter.py" beforeDir="false" afterPath="$PROJECT_DIR$/shared/rate_limiter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worker/.dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/worker/.dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worker/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/worker/app/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker/app/prompt_templates.json" beforeDir="false" afterPath="$PROJECT_DIR$/worker/app/prompt_templates.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker/app/worker.py" beforeDir="false" afterPath="$PROJECT_DIR$/worker/app/worker.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/worker/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worker/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/worker/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/worker/tests/test_worker.py" beforeDir="false" afterPath="$PROJECT_DIR$/worker/tests/test_worker.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -51,33 +63,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Docker.client/.dockerfile.executor&quot;: &quot;Run&quot;,
-    &quot;Docker.docker-compose.yml.client: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;Docker.docker-compose.yml.worker: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;Docker.docker-compose.yml.worker_test: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;Docker.docker-compose.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
-    &quot;Docker.worker/.dockerfile.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/mukch/projects/TradeMon/worker/tests&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.client/.dockerfile.executor": "Run",
+    "Docker.docker-compose.yml.client: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yml.worker-test: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yml.worker: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yml.worker_test: Compose Deployment.executor": "Run",
+    "Docker.docker-compose.yml: Compose Deployment.executor": "Run",
+    "Docker.worker/.dockerfile.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/Users/mukch/projects/TradeMon",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\mukch\projects\TradeMon" />
       <recent name="C:\Users\mukch\projects\TradeMon\worker\tests" />
       <recent name="C:\Users\mukch\projects\TradeMon\worker" />
-      <recent name="C:\Users\mukch\projects\TradeMon" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\mukch\projects\TradeMon\worker\tests" />
@@ -96,12 +109,12 @@
       </deployment>
       <method v="2" />
     </configuration>
-    <configuration name="docker-compose.yml.client: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+    <configuration name="docker-compose.yml.worker-test: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
       <deployment type="docker-compose.yml">
         <settings>
           <option name="services">
             <list>
-              <option value="client" />
+              <option value="worker-test" />
             </list>
           </option>
           <option name="sourceFilePath" value="docker-compose.yml" />
@@ -147,9 +160,9 @@
       <list>
         <item itemvalue="Docker.docker-compose.yml.worker: Compose Deployment" />
         <item itemvalue="Docker.docker-compose.yml: Compose Deployment" />
+        <item itemvalue="Docker.docker-compose.yml.worker-test: Compose Deployment" />
         <item itemvalue="Docker.worker/.dockerfile" />
         <item itemvalue="Docker.docker-compose.yml.worker_test: Compose Deployment" />
-        <item itemvalue="Docker.docker-compose.yml.client: Compose Deployment" />
       </list>
     </recent_temporary>
   </component>
@@ -192,7 +205,9 @@
       <workItem from="1753167972666" duration="15000" />
       <workItem from="1753231326055" duration="8158000" />
       <workItem from="1753318006040" duration="1862000" />
-      <workItem from="1753334263417" duration="12760000" />
+      <workItem from="1753334263417" duration="12785000" />
+      <workItem from="1753407983777" duration="11563000" />
+      <workItem from="1753484174041" duration="18875000" />
     </task>
     <servers />
   </component>

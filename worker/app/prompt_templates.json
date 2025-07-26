@@ -1,54 +1,32 @@
 {
   "PE_RATIO": {
     "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE PRICE-TO-EARNINGS (P/E) RATIO FROM THE HTML. IF MULTIPLE VALUES EXIST, PICK THE ONE CLOSEST TO {{TIME}}. RETURN ONLY A JSON LIKE {\"PE_RATIO\": <NUMERIC_VALUE_OR_NULL>}.",
-    "search": "{{TICKER}} stock P/E ratio site:finance.yahoo.com OR site:marketwatch.com after:{{DATE_MINUS}} before:{{TIME}}"
+    "search": "{{TICKER}} stock P/E ratio site:finance.yahoo.com OR site:marketwatch.com",
+    "api": "web",
+    "type": "single"
   },
   "EPS": {
     "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE EARNINGS PER SHARE (EPS), PREFERABLY TTM OR MOST RECENT QUARTER. RETURN ONLY A JSON LIKE {\"EPS\": <NUMERIC_VALUE_OR_NULL>}.",
-    "search": "{{TICKER}} EPS earnings per share site:finance.yahoo.com OR site:investing.com after:{{DATE_MINUS}} before:{{TIME}}"
-  },
-  "DIVIDEND_YIELD": {
-    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE DIVIDEND YIELD. RETURN ONLY A JSON LIKE {\"DIVIDEND_YIELD\": <NUMERIC_VALUE_OR_NULL>} WITHOUT % SIGN.",
-    "search": "{{TICKER}} dividend yield site:finance.yahoo.com OR site:marketbeat.com after:{{DATE_MINUS}} before:{{TIME}}"
-  },
-  "MARKET_CAP": {
-    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE MARKET CAPITALIZATION AND RETURN IT AS A PURE NUMBER IN USD. RETURN ONLY A JSON LIKE {\"MARKET_CAP_USD\": <NUMERIC_VALUE_OR_NULL>}.",
-    "search": "{{TICKER}} market capitalization site:finance.yahoo.com OR site:macrotrends.net after:{{DATE_MINUS}} before:{{TIME}}"
-  },
-  "BETA_VOLATILITY": {
-    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE STOCK'S BETA VOLATILITY. RETURN ONLY A JSON LIKE {\"BETA\": <NUMERIC_VALUE_OR_NULL>}.",
-    "search": "{{TICKER}} stock beta volatility site:finance.yahoo.com OR site:marketwatch.com after:{{DATE_MINUS}} before:{{TIME}}"
+    "search": "{{TICKER}} EPS earnings per share site:finance.yahoo.com OR site:investing.com",
+    "api": "web",
+    "type": "single"
   },
   "VOLUME": {
     "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE DAILY TRADING VOLUME. RETURN ONLY A JSON LIKE {\"VOLUME\": <NUMERIC_VALUE_OR_NULL>}.",
-    "search": "{{TICKER}} daily trading volume site:finance.yahoo.com OR site:investing.com after:{{DATE_MINUS}} before:{{TIME}}"
+    "search": "{{TICKER}} daily trading volume site:finance.yahoo.com OR site:investing.com",
+    "api": "web",
+    "type": "single"
   },
   "NEWS_SENTIMENT": {
-    "prompt": "FOR {{TICKER}} AT {{TIME}}, SCAN NEWS HEADLINES AND SUMMARIZE THEIR SENTIMENT AS 2 (VERY_POSITIVE), 1 (POSITIVE), 0 (NEUTRAL), -1 (NEGATIVE), OR -2 (VERY_NEGATIVE). RETURN ONLY A JSON LIKE {\"NEWS_SENTIMENT\": <NUMERIC_VALUE>}.",
-    "search": "{{TICKER}} latest stock news headlines after:{{DATE_MINUS}} before:{{TIME}}"
+    "prompt": "Analyze latest news headlines for {{TICKER}} around {{TIME}}. Assign a sentiment score from 10 (extremely bullish) to -10 (extremely bearish) focusing EXCLUSIVELY on projected stock growth impact. Consider: 1) Revenue growth implications 2) Profit margin trends 3) Market share expansion 4) Regulatory impacts 5) Competitive threats. Return ONLY: {\"NEWS_SENTIMENT\": <score>, \"KEY_DRIVERS\": [\"<top_factor>\", \"<second_factor>\"]}",
+    "search": "{{TICKER}} stock news financial analysis {{TIME}} -forum -reddit -twitter",
+    "api": "news",
+    "type": "aggregate"
   },
-  "PRICE_TARGET": {
-    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE MOST RECENT ANALYST AVERAGE PRICE TARGET. RETURN ONLY A JSON LIKE {\"PRICE_TARGET_USD\": <NUMERIC_VALUE_OR_NULL>}.",
-    "search": "{{TICKER}} analyst average price target site:finance.yahoo.com OR site:marketbeat.com after:{{DATE_MINUS}} before:{{TIME}}"
-  },
-  "SHORT_INTEREST": {
-    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE SHORT INTEREST PERCENTAGE OF FLOAT. RETURN ONLY A JSON LIKE {\"SHORT_INTEREST_PERCENT\": <NUMERIC_VALUE_OR_NULL>} WITHOUT % SIGN.",
-    "search": "{{TICKER}} short interest percentage site:marketbeat.com OR site:finviz.com after:{{DATE_MINUS}} before:{{TIME}}"
-  },
-  "REVENUE": {
-    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE MOST RECENT QUARTERLY REVENUE. RETURN ONLY A JSON LIKE {\"REVENUE_USD\": <NUMERIC_VALUE_OR_NULL>}.",
-    "search": "{{TICKER}} quarterly revenue site:finance.yahoo.com OR site:macrotrends.net after:{{DATE_MINUS}} before:{{TIME}}"
-  },
-  "NET_INCOME": {
-    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE MOST RECENT QUARTERLY NET INCOME. RETURN ONLY A JSON LIKE {\"NET_INCOME_USD\": <NUMERIC_VALUE_OR_NULL>}.",
-    "search": "{{TICKER}} quarterly net income site:finance.yahoo.com OR site:macrotrends.net after:{{DATE_MINUS}} before:{{TIME}}"
-  },
-  "FREE_CASH_FLOW": {
-    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE MOST RECENT FREE CASH FLOW (FCF). RETURN ONLY A JSON LIKE {\"FREE_CASH_FLOW_USD\": <NUMERIC_VALUE_OR_NULL>}.",
-    "search": "{{TICKER}} free cash flow site:macrotrends.net OR site:finbox.com after:{{DATE_MINUS}} before:{{TIME}}"
-  },
-  "INSTITUTIONAL_OWNERSHIP": {
-    "prompt": "FOR {{TICKER}} AT {{TIME}}, EXTRACT THE INSTITUTIONAL OWNERSHIP PERCENTAGE. RETURN ONLY A JSON LIKE {\"INSTITUTIONAL_OWNERSHIP_PERCENT\": <NUMERIC_VALUE_OR_NULL>} WITHOUT % SIGN.",
-    "search": "{{TICKER}} institutional ownership site:marketbeat.com OR site:finviz.com after:{{DATE_MINUS}} before:{{TIME}}"
+  "SOCIAL_SENTIMENT": {
+  "prompt": "Analyze social discussions (Reddit/Twitter/blogs) about {{TICKER}} around {{TIME}}. Score retail investor sentiment from 10 (extremely bullish) to -10 (extremely bearish) based on: 1) Short-term price speculation 2) Long-term growth conviction 3) Technical analysis mentions 4) Meme stock potential 5) Short interest trends. Return ONLY: {\"SOCIAL_SENTIMENT\": <score>, \"DOMINANT_PLATFORM\": \"<main_source>\", \"BULLISH_PCT\": <%>, \"BEARISH_PCT\": <%>}",
+  "search": "\"{{TICKER}}\" stock discussion (reddit OR twitter OR blog) {{TIME}}",
+  "api": "social",
+  "type": "aggregate"
   }
 }
