@@ -1,13 +1,13 @@
 import pytest
-from app.worker import Worker, date_minus
+from app.reader import Reader, date_minus
 from shared.payloads import package_web_results
 import logging
 
-worker = Worker()
+reader = Reader()
 
 def search_log(logger, ticker, date, goal):
     logger.info(f"\nTesting process_goal with: {ticker} {date} {goal}")
-    search_term = str(worker.prompt_templates[goal]["search"]
+    search_term = str(reader.prompt_templates[goal]["search"]
                       .replace("{{TICKER}}", ticker))
 
     logger.info(f"\nSearch Term: {search_term}")
@@ -25,14 +25,14 @@ async def test_search_internet_real(ticker, date, goal):
     :param date: The date to search for in YYYY-MM-DD
     :param goal: goal from templates.
     """
-    await worker.open_connection()
+    await reader.open_connection()
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
     try:
-        assert goal in worker.prompt_templates, f"Goal '{goal}' invalid"
+        assert goal in reader.prompt_templates, f"Goal '{goal}' invalid"
 
-        result = await worker.search_internet(date, ticker, goal)
+        result = await reader.search_internet(date, ticker, goal)
         packaged = package_web_results(result)
 
         assert isinstance(result, list)
@@ -40,12 +40,12 @@ async def test_search_internet_real(ticker, date, goal):
         logger.info(f"\nPackage:\n{packaged[:256]}")
 
     finally:
-            await worker.close_connection()
+            await reader.close_connection()
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("ticker, date, goal", [
-    ("AMZN", "2024-06-04", "EPS"),
+    ("AMZN", "2024-06-04", "PE_RATIO"),
     ("ORCL", "2024-06-04", "NEWS_SENTIMENT"),
 ])
 async def test_process_goal_real(ticker, date, goal):
@@ -58,14 +58,14 @@ async def test_process_goal_real(ticker, date, goal):
     """
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-    await worker.open_connection()
+    await reader.open_connection()
 
     try:
-        assert goal in worker.prompt_templates, f"Goal '{goal}' invalid"
+        assert goal in reader.prompt_templates, f"Goal '{goal}' invalid"
 
         search_log(logger, ticker, date, goal)
 
-        result = await worker.process_goal(date, ticker, goal)
+        result = await reader.process_goal(date, ticker, goal)
 
         logger.info(f"\nExtracted Results: {result}")
 
@@ -73,7 +73,7 @@ async def test_process_goal_real(ticker, date, goal):
         assert goal in result, f"Result should contain the goal {goal}"
 
     finally:
-        await worker.close_connection()
+        await reader.close_connection()
 
 
 @pytest.mark.asyncio
@@ -86,22 +86,24 @@ async def test_get_all_metrics_real(ticker, date):
     :param ticker: The ticker symbol to search for.
     :param date: The date to search for in YYYY-MM-DD
     """
-    await worker.open_connection()
+    await reader.open_connection()
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
 
     try:
         logger.info(f"\nTesting get_all_metrics with: {ticker} {date}")
 
-        result = await worker.get_all_metrics(date, ticker)
+        num_metrics = len(reader.prompt_templates)
+
+        result = await reader.get_all_metrics(date, ticker)
 
         logger.info(f"\nMetrics Result: {result}")
 
         assert isinstance(result, dict), "Result should be a dictionary"
-        assert len(result) > 0, "The result should contain metrics"
+        assert len(result) >= num_metrics, f"Expected at least {num_metrics} metrics"
         assert all(isinstance(value, (int, float, type(None))) for value in result.values()), \
             "All metric values should be numbers or None"
 
     finally:
-        await worker.close_connection()
+        await reader.close_connection()
 

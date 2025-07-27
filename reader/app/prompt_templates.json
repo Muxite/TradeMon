@@ -1,0 +1,14 @@
+{
+  "NEWS_SENTIMENT": {
+    "prompt": "Analyze latest news headlines for {{TICKER}} around {{TIME}}. Assign a sentiment score from 10 (extremely bullish) to -10 (extremely bearish) focusing EXCLUSIVELY on projected stock growth impact. Consider: 1) Revenue growth implications 2) Profit margin trends 3) Market share expansion 4) Regulatory impacts 5) Competitive threats. Return ONLY: {\"NEWS_SENTIMENT\": <score>, \"KEY_DRIVERS\": [\"<top_factor>\", \"<second_factor>\"]}",
+    "search": "{{TICKER}} stock news financial analysis {{TIME}} -forum -reddit -twitter",
+    "api": "news",
+    "type": "aggregate"
+  },
+  "SOCIAL_SENTIMENT": {
+  "prompt": "Analyze social discussions (Reddit/Twitter/blogs) about {{TICKER}} around {{TIME}}. Score retail investor sentiment from 10 (extremely bullish) to -10 (extremely bearish) based on: 1) Short-term price speculation 2) Long-term growth conviction 3) Technical analysis mentions 4) Meme stock potential 5) Short interest trends. Return ONLY: {\"SOCIAL_SENTIMENT\": <score>, \"DOMINANT_PLATFORM\": \"<main_source>\", \"BULLISH_PCT\": <%>, \"BEARISH_PCT\": <%>}",
+  "search": "\"{{TICKER}}\" stock discussion (reddit OR twitter OR blog) {{TIME}}",
+  "api": "web",
+  "type": "aggregate"
+  }
+}

@@ -49,8 +49,7 @@ def make_search_payload(template, date, ticker, count, period=90) -> dict:
     """
     content = (template
                .replace("{{TICKER}}", ticker)
-               .replace("{{TIME}}", date)
-               .replace("{{DATE_MINUS}}", date_minus(date, period)))
+               .replace("{{TIME}}", date))
 
     params = {
         "q": content,
@@ -62,20 +61,40 @@ def make_search_payload(template, date, ticker, count, period=90) -> dict:
 
     return params
 
-def package_web_results(web_results: dict) -> str:
+
+def package_web_results(web_results: list) -> str:
     """
-    Convert a dict of web results into a single string.
-    :param web_results: A dict of web results from the API.
-    :return: A large formatted string ready for LLM extraction.
+    Enhanced result packaging with more context
+    web_results: list of dicts with search results.
     """
     package = ""
-    if "results" in web_results:
-        for num, result in enumerate(web_results):
-            package += f"Website #{num}: {result.get('title', '')}\n"
-            if "description" in result:
-                package += f"{result['description']}\n"
-            if "extra_snippets" in result and result["extra_snippets"]:
-                for snippet in result["extra_snippets"]:
-                    package += f"{snippet}\n"
+    for num, result in enumerate(web_results):
+        package += f"=== RESULT {num + 1} ===\n"
+
+        # Add title
+        package += f"Title: {result.get('title', '')}\n"
+
+        # Add date information if available
+        if "age" in result:
+            package += f"Date: {result['age']}\n"
+        elif "page_age" in result:
+            package += f"Date: {result['page_age']}\n"
+
+        # Add main content
+        if "description" in result:
+            package += f"\nDescription:\n{result['description']}\n\n"
+
+        # Add extra snippets
+        if "extra_snippets" in result and result["extra_snippets"]:
+            package += "Additional Information:\n"
+            for snippet in result["extra_snippets"]:
+                package += f"- {snippet}\n"
             package += "\n"
-    return package
+
+        # Add video transcript
+        if "video" in result and "transcript" in result["video"]:
+            package += f"Video Transcript:\n{result['video']['transcript']}\n\n"
+
+        package += "\n\n"
+
+    return package.strip()

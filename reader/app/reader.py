@@ -4,8 +4,8 @@ import os
 import logging
 import asyncio
 from shared.payloads import *
+from shared.worker import Worker
 from shared.rate_limiter import RateLimiter
-from redis.asyncio import Redis
 
 
 def discard_goals(remaining_goals: set[str], extracted_results: dict) -> set[str]:
@@ -22,23 +22,22 @@ def discard_goals(remaining_goals: set[str], extracted_results: dict) -> set[str
                                             or extracted_results[goal] in (None, "", "null")
     }
 
-#TODO make Worker into Scraper as a child class of a generalized worker.
-class Worker:
+#TODO make Worker into Scraper as a child class of a generalized reader.
+class Reader(Worker):
     def __init__(self):
+        super().__init__(
+            input_queue=os.environ.get("SEARCH_QUERIES_NAME"),
+            output_queue=os.environ.get("SEARCH_ANSWERS_NAME")
+        )
         self.logger = logging.getLogger(__name__)
         self.prompt_templates = json.load(open(os.environ.get("PROMPT_TEMPLATES_PATH")))
         self.llm_url = f"{os.environ.get('MODEL_API_URL')}/v1/chat/completions"
         self.search_api_url_web = os.environ.get("SEARCH_API_URL_WEB")
         self.search_api_url_news = os.environ.get("SEARCH_API_URL_NEWS")
-        self.search_api_url_period = os.environ.get("SEARCH_API_PERIOD")
+        self.search_api_period = os.environ.get("SEARCH_API_PERIOD")
         self.search_api_key = os.environ.get("SEARCH_API_KEY")
-        self.rate_limiter = RateLimiter(period=float(self.search_api_url_period))
-        self.session = None
-        self.redis = None
-        self.redis_url = os.environ.get("REDIS_URL")
-        self.queries_name = os.environ.get("QUERIES_NAME")  # query is ticker, date.
-        self.metrics_name = os.environ.get("METRICS_NAME")
-
+        self.llm_retries = int(os.environ.get("LLM_RETRIES"))
+        self.rate_limiter = RateLimiter(period=float(self.search_api_period))
 
     async def wait_for_llm(self, max_attempts: int = 120, timeout: int = 10) -> bool:
         """
@@ -62,9 +61,6 @@ class Worker:
 
         for attempt in range(max_attempts):
             try:
-                if self.session is None:
-                    self.session = aiohttp.ClientSession()
-
                 async with self.session.post(self.llm_url, json=test_payload, timeout=timeout) as resp:
                     if resp.status != 503:
                         if resp.status == 200:
@@ -83,52 +79,12 @@ class Worker:
         self.logger.error("LLM CONNECTION FAILED")
         return False
 
-    async def init_redis(self) -> bool:
-        """Initialize Redis connection."""
-        try:
-            self.redis = Redis.from_url(self.redis_url, decode_responses=True)
-            await self.redis.ping()
-            return True
-        except Exception as e:
-            self.logger.error(f"REDIS CONNECTION FAILED: {str(e)}")
-            return False
-
-
     async def open_connection(self):
-        """Initialize the aiohttp client session."""
-        if self.session is None:
-            self.session = aiohttp.ClientSession()
-
-        if not await self.init_redis():
-            await self.close_connection()
-            return None
-
+        """Worker connection open + LLM check."""
+        await super().open_connection()
         if not await self.wait_for_llm():
             await self.close_connection()
-            return None
-
-        return self.session
-
-    async def close_connection(self):
-        """Close the aiohttp client session if it exists."""
-        if self.session is not None:
-            await self.session.close()
-            self.session = None
-
-        if self.redis is not None:
-            await self.redis.aclose()
-            self.redis = None
-
-
-    async def __aenter__(self):
-        """Async context manager entry."""
-        await self.open_connection()
-        return self
-
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
-        """Async context manager exit."""
-        await self.close_connection()
-
+            raise ConnectionError("LLM unavailable")
 
     async def llm_extract(self, date: str, ticker: str, goal: str, content: str) -> dict:
         """
@@ -144,17 +100,34 @@ class Worker:
         prompt = self.prompt_templates[goal]["prompt"]
         payload = make_llm_payload(prompt, date, ticker, content)
 
-        await self.rate_limiter.acquire()
-        async with self.session.post(self.llm_url, json=payload) as resp:
-            content = await resp.json()
-            raw = content["choices"][0]["message"]["content"].strip()
+        last_exception = None
 
-        try:
-            return json.loads(raw)
-        except json.JSONDecodeError:
-            return {}
+        for attempt in range(self.llm_retries):
+            try:
+                await self.rate_limiter.acquire()
+                async with self.session.post(self.llm_url, json=payload) as resp:
+                    content = await resp.json()
+                    raw = content["choices"][0]["message"]["content"].strip()
 
-    async def search_internet(self, date: str, ticker: str, goal: str, count=5) -> dict:
+                self.logger.debug(f"LLM payload: {json.dumps(payload, indent=2)}")
+                self.logger.debug(f"Raw LLM response: {raw}")
+
+                try:
+                    return json.loads(raw)
+                except json.JSONDecodeError:
+                    return {}
+
+            except Exception as e:
+                last_exception = e
+                self.logger.warning(f"LLM request attempt {attempt} failed: {str(e)}")
+                if attempt < self.llm_retries:
+                    self.logger.info("Retrying...")
+                    continue
+
+        self.logger.error(f"All {self.llm_retries} attempts failed. Last error: {str(last_exception)}")
+        return {}
+
+    async def search_internet(self, date: str, ticker: str, goal: str, count=6) -> list:
         """
         Search the internet for the goal for the ticker and date.
         :param date: The date to search for.
@@ -172,31 +145,75 @@ class Worker:
         params = make_search_payload(self.prompt_templates[goal]["search"], date, ticker, count)
 
         await self.rate_limiter.acquire()
-        async with self.session.get(
-                search_api_url,
-                headers={
-                    "Accept": "application/json",
-                    "Accept-Encoding": "gzip",
-                    "x-subscription-token": str(self.search_api_key)
-                },
-                params=params) as resp:
-            results = await resp.json()
-        #TODO make overarching search.
-        if self.prompt_templates[goal]["api"] == "news":
-            result_field = results["results"]
-        else:
-            result_field = results["web"]["results"]
-        return result_field
+        try:
+            async with self.session.get(
+                    search_api_url,
+                    headers={
+                        "Accept": "application/json",
+                        "Accept-Encoding": "gzip",
+                        "x-subscription-token": str(self.search_api_key)
+                    },
+                    params=params
+            ) as resp:
+                if resp.status != 200:
+                    self.logger.error(f"Search API failed: {resp.status} {await resp.text()}")
+                    return []
 
-    async def process_goal(self, date: str, ticker: str, goal : str) -> dict:
-        if self.prompt_templates[goal]["type"] == "single":
-            html_content = await self.search_internet(date, ticker, goal)
-            packaged = package_web_results(html_content)
-            results = await self.llm_extract(date, ticker, goal, packaged)
-        else:
-            results = await self.get_aggregate(date, ticker, goal)
+                results = await resp.json()
+        except Exception as e:
+            self.logger.error(f"Search request failed: {str(e)}")
+            return []
 
-        return results
+        self.logger.debug(f"Search API response keys: {list(results.keys())}")
+
+        result_fields = []
+
+        possible_result_paths = [
+            ["web", "results"],  # Standard web results
+            ["results"],  # News results (from news link)
+            ["mixed", "main"],  # Mixed results
+            ["videos", "results"],  # Video results
+            ["news", "results"]  # Alternative news format (from web link)
+        ]
+
+        for path in possible_result_paths:
+            current = results
+            valid = True
+            for key in path:
+                if isinstance(current, dict) and key in current:
+                    current = current[key]
+                else:
+                    valid = False
+                    break
+
+            if valid and isinstance(current, list):
+                result_fields.extend(current)
+
+        return result_fields
+
+    async def process_goal(self, date: str, ticker: str, goal: str) -> dict:
+        try:
+            if goal not in self.prompt_templates:
+                raise ValueError(f"Goal {goal} not found in prompt templates")
+
+            if self.prompt_templates[goal]["type"] == "single":
+                html_content = await self.search_internet(date, ticker, goal)
+                if not html_content:
+                    self.logger.warning(f"No content found for {goal}")
+                    return {}
+
+                packaged = package_web_results(html_content)
+                results = await self.llm_extract(date, ticker, goal, packaged)
+            else:
+                results = await self.get_aggregate(date, ticker, goal)
+
+            if not results:
+                self.logger.warning(f"Empty results for {goal}")
+
+            return results
+        except Exception as e:
+            self.logger.error(f"Error processing goal {goal}: {str(e)}")
+            return {}
 
     async def get_aggregate(self, date: str, ticker: str, goal : str, count=20) -> dict:
         """
@@ -227,9 +244,12 @@ class Worker:
         return {goal: sentiment}
 
     async def get_all_metrics(self, date: str, ticker: str) -> dict:
-        if self.session is None:
-            await self.open_connection()
-
+        """
+        Get all metrics from the json list of goals.
+        :param date: latest date to check
+        :param ticker: stock's ticker
+        :return: A dict of metrics, all are numerical values.
+        """
         remaining_goals = set(self.prompt_templates.keys())
         results = {}
 
@@ -261,33 +281,10 @@ class Worker:
             return result
 
         except KeyError as e:
-            self.logger.error(f"Missing key {e}")
+            self.logger.error(f"Missing key: {e}")
         except Exception as e:
-            self.logger.error(f"Processing failed {task_dict}: {str(e)}")
+            self.logger.error(f"Processing failed: {task_dict}: {str(e)}")
 
-    async def run_worker(self):
-        """Main worker loop that processes tasks from Redis"""
-        await self.open_connection()
-        self.logger.info("WORKER STARTED, NOW WAITING FOR TASKS.")
-
-        try:
-            while True:
-                _, task_json = await self.redis.blpop([self.queries_name], timeout=0)  # tuple (title, content)
-                if task_json:
-                    try:
-                        task_dict = json.loads(task_json.decode('utf-8'))
-                        package = await self.process_task(task_dict)
-                        await self.redis.sadd(self.metrics_name, json.dumps(package))
-                    except json.JSONDecodeError:
-                        self.logger.error(f"Invalid JSON task: {task_json}")
-
-        except asyncio.CancelledError:
-            self.logger.info("Worker shutdown requested")
-        except Exception as e:
-            self.logger.error(f"Error in loop: {str(e)}")
-        finally:
-            await self.close_connection()
-            self.logger.info("Worker shutdown complete")
 
 if __name__ == "__main__":
     pass

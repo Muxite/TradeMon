@@ -31,14 +31,14 @@ services:
     command: redis-server --save 180 1 --loglevel warning
 
 
-  worker:
+  reader:
     build:
-      context: ./worker
+      context: reader
       dockerfile: .dockerfile
     volumes:
-      - ./SHARED:/worker/shared
-      - ./worker/app:/worker/app
-      - ./worker/tests:/worker/tests
+      - ./SHARED:/reader/shared
+      - ./reader/app:/reader/app
+      - ./reader/tests:/reader/tests
     depends_on:
       - inference
     command: ["python", "app/main.py"]
@@ -46,6 +46,18 @@ services:
       - .env
       - keys.env
 
+  stocker:
+    build:
+      context: stocker
+      dockerfile: .dockerfile
+    volumes:
+      - ./SHARED:/stocker/shared
+      - ./stocker/app:/stocker/app
+      - ./stocker/tests:/stocker/tests
+    command: ["python", "app/main.py"]
+    env_file:
+      - .env
+      - keys.env
 
   tester:
     profiles: ["test"]
