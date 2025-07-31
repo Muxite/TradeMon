@@ -68,6 +68,7 @@ services:
       - ./SHARED:/app/shared
     depends_on:
       - inference
+      - cache
     command: "pytest -v --tb=short tests/"
     env_file:
       - .env

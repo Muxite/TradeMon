@@ -9,11 +9,11 @@ from redis.asyncio import Redis
 
 
 class Worker:
-    def __init__(self, input_queue: str, output_queue: str):
-        self.logger = logging.getLogger(__name__)
+    def __init__(self, input_queue: str, data_type: str):
+        self.logger = logging.getLogger(self.__class__.__name__)
         self.redis_url = os.environ.get("REDIS_URL")
         self.input_queue = input_queue
-        self.output_queue = output_queue
+        self.data_type = data_type
         self.session = None
         self.redis = None
 
@@ -53,20 +53,27 @@ class Worker:
         raise NotImplementedError("Child classes must implement process_task()")
 
     async def run_worker(self):
-        """Main worker loop for processing tasks from Redis"""
+        """
+        Main worker loop for processing tasks from Redis.
+        The result is in Redis under the same key as the task. Ex: "search:AAPL,2022-01-01"
+        """
         await self.open_connection()
         self.logger.info(f"{self.__class__.__name__} STARTED. Listening on {self.input_queue}")
 
         try:
             while True:
-                _, task_json = await self.redis.blpop([self.input_queue], timeout=0)
-                if task_json:
+                _, task_key = await self.redis.blpop([self.input_queue], timeout=0)
+                if task_key:
                     try:
-                        task_dict = json.loads(task_json)
-                        result = await self.process_task(task_dict)
-                        await self.redis.sadd(self.output_queue, json.dumps(result))
+                        prefix, task = task_key.split(":", 1)
+                        result = await self.process_task(task)
+                        await self.redis.set(
+                            task_key,
+                            json.dumps(result),
+                        )
+
                     except json.JSONDecodeError:
-                        self.logger.error(f"Invalid JSON task: {task_json}")
+                        self.logger.error(f"Invalid JSON task: {task_key}")
                     except Exception as e:
                         self.logger.error(f"Task processing failed: {str(e)}")
         except asyncio.CancelledError:

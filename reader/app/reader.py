@@ -22,14 +22,13 @@ def discard_goals(remaining_goals: set[str], extracted_results: dict) -> set[str
                                             or extracted_results[goal] in (None, "", "null")
     }
 
-#TODO make Worker into Scraper as a child class of a generalized reader.
+
 class Reader(Worker):
     def __init__(self):
         super().__init__(
             input_queue=os.environ.get("SEARCH_QUERIES_NAME"),
-            output_queue=os.environ.get("SEARCH_ANSWERS_NAME")
+            data_type="search"
         )
-        self.logger = logging.getLogger(__name__)
         self.prompt_templates = json.load(open(os.environ.get("PROMPT_TEMPLATES_PATH")))
         self.llm_url = f"{os.environ.get('MODEL_API_URL')}/v1/chat/completions"
         self.search_api_url_web = os.environ.get("SEARCH_API_URL_WEB")
@@ -263,12 +262,17 @@ class Reader(Worker):
 
         return results
 
-    async def process_task(self, task_dict: dict):
-        """Process a single task from Redis"""
+    async def process_task(self, task: str):
+        """
+        Process a single task from Redis
+        :param task: Task string in format "ticker,date"
+        :return: dict with metrics.
+        """
+
+        ticker, date = task.split(",", 1)
+
         try:
-            self.logger.info(f"Processing task: {task_dict}")
-            ticker = task_dict["ticker"]
-            date = task_dict["date"]
+            self.logger.info(f"Processing task: {task}")
 
             metrics = await self.get_all_metrics(date, ticker)
 
@@ -283,7 +287,7 @@ class Reader(Worker):
         except KeyError as e:
             self.logger.error(f"Missing key: {e}")
         except Exception as e:
-            self.logger.error(f"Processing failed: {task_dict}: {str(e)}")
+            self.logger.error(f"Processing failed: {task}: {str(e)}")
 
 
 if __name__ == "__main__":

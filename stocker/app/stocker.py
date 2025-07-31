@@ -51,7 +51,7 @@ class Stocker(Worker):
     def __init__(self):
         super().__init__(
             input_queue=os.environ.get("STOCK_QUERIES_NAME"),
-            output_queue=os.environ.get("STOCK_ANSWERS_NAME")
+            data_type="stock"
         )
         self.logger = logging.getLogger(__name__)
         self.base_url = "https://www.alphavantage.co/query"
@@ -91,10 +91,14 @@ class Stocker(Worker):
         await self.redis.set(cache_key, json.dumps(time_series))
         return time_series
 
-    async def process_task(self, task_data: dict) -> dict:
-        ticker = task_data["ticker"]
-        first_day = task_data["first_day"]
-        last_day = task_data["last_day"]
+    async def process_task(self, task: str) -> dict:
+        """
+        Process a single task from Redis
+        :param task: Task string in format "ticker,first_date,late_date"
+        :return: dict with metrics.
+        """
+
+        ticker, first_date, last_date = task.split(",",2)
 
         stock_data, index_data = await asyncio.gather(
             self.fetch_stock_data(ticker),
@@ -104,8 +108,8 @@ class Stocker(Worker):
         if not stock_data or not index_data:
             return {"ticker": ticker, "error": "Data unavailable"}
 
-        stock_perf = calculate_performance(stock_data, first_day, last_day)
-        index_perf = calculate_performance(index_data, first_day, last_day)
+        stock_perf = calculate_performance(stock_data, first_date, last_date)
+        index_perf = calculate_performance(index_data, first_date, last_date)
 
         self.logger.debug(f"{ticker} performance: {stock_perf} vs Index performance: {index_perf}")
 
@@ -114,8 +118,8 @@ class Stocker(Worker):
 
         result = {
             "ticker": ticker,
-            "first_day": first_day,
-            "last_day": last_day,
+            "first_day": first_date,
+            "last_day": last_date,
             "outperformed": stock_perf > index_perf,
             "ticker_performance": stock_perf,
             "index_performance": index_perf
