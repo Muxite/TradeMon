@@ -18,20 +18,14 @@ def make_llm_payload(template, time, ticker, html_content) -> dict:
         "messages": [
             {
                 "role": "system",
-                "content": (
-                    f"Here's is a search result for reference:\n```{html_content}```"
-                )
-            },
-            {
-              "role": "system",
-              "content": content
+                "content": "You are a financial analyst. Return ONLY valid JSON with no commentary."
             },
             {
                 "role": "user",
-                "content": "Do the extraction using the provided HTML and instructions."
+                "content": f"{content}\nHTML context:\n```{html_content}```"
             }
         ],
-        "temperature": 0.6,
+        "temperature": 0.4,
         "max_tokens": 3200,
         "response_format": {"type": "json_object"}
     }

@@ -214,18 +214,20 @@ class Reader(Worker):
             self.logger.error(f"Error processing goal {goal}: {str(e)}")
             return {}
 
-    async def get_aggregate(self, date: str, ticker: str, goal : str, count=20) -> dict:
+    async def get_aggregate(self, date: str, ticker: str, goal: str, count=20) -> dict:
         """
-        Goes per-site and combines sentiments into a single number.
+        Goes per-site and combines multiple metrics into average values.
+
         :param date: Date to search for.
         :param ticker: The ticker symbol to search for.
         :param goal: The goal to choose a template for.
         :param count: Number of news articles to search for.
 
-        :return dict: key and value pair.
+        :return dict: Dictionary with average values for each metric found in responses.
         """
-        sum = 0
-        valid_responses = 0
+
+        sums = {}
+        counts = {}
 
         results = await self.search_internet(date, ticker, goal, count)
 
@@ -234,13 +236,23 @@ class Reader(Worker):
             if to_read != "":
                 answer = await self.llm_extract(date, ticker, goal, to_read)
                 try:
-                    num_answer = float(answer[goal])
-                    sum += num_answer
-                    valid_responses += 1
-                except KeyError:
-                    self.logger.warning(f"Invalid answer from LLM: {answer}")
-        sentiment = sum/valid_responses
-        return {goal: sentiment}
+                    for metric, value in answer.items():
+                        try:
+                            num_value = float(value)
+                            sums[metric] = sums.get(metric, 0) + num_value
+                            counts[metric] = counts.get(metric, 0) + 1
+                        except (ValueError, TypeError):
+                            self.logger.warning(f"Invalid value for metric {metric}: {value}")
+                except (AttributeError, TypeError):
+                    self.logger.warning(f"Invalid answer format from LLM: {answer}")
+
+        averages = {
+            metric: sums[metric] / counts[metric]
+            for metric in sums
+            if counts.get(metric, 0) > 0
+        }
+
+        return averages
 
     async def get_all_metrics(self, date: str, ticker: str) -> dict:
         """

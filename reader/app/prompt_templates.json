@@ -1,14 +1,72 @@
 {
-  "NEWS_SENTIMENT": {
-    "prompt": "Analyze latest news headlines for {{TICKER}} around {{TIME}}. Assign a sentiment score from 10 (extremely bullish) to -10 (extremely bearish) focusing EXCLUSIVELY on projected stock growth impact. Consider: 1) Revenue growth implications 2) Profit margin trends 3) Market share expansion 4) Regulatory impacts 5) Competitive threats. Return ONLY: {\"NEWS_SENTIMENT\": <score>, \"KEY_DRIVERS\": [\"<top_factor>\", \"<second_factor>\"]}",
-    "search": "{{TICKER}} stock news financial analysis {{TIME}} -forum -reddit -twitter",
+  "FINANCIAL_NEWS_SENTIMENT": {
+    "prompt": "Analyze Bloomberg/Reuters headlines about {{TICKER}} from {{TIME}}. Generate scores from 100 (strong growth) to -100 (severe decline) based on: 1) Earnings guidance 2) Analyst rating changes 3) M&A activity 4) Debt refinancing terms 5) Institutional ownership shifts. Return EXACTLY: {\"earnings_score\": <int -100 to 100>, \"analyst_rating_score\": <int -100 to 100>, \"ma_score\": <int -100 to 100>, \"debt_score\": <int -100 to 100>, \"ownership_score\": <int -100 to 100>}",
+    "search": "\"{{TICKER}}\" site:bloomberg.com OR site:reuters.com {{TIME}} earnings OR upgrade OR downgrade",
     "api": "news",
-    "type": "aggregate"
+    "type": "aggregate",
+    "output_keys": ["earnings_score", "analyst_rating_score", "ma_score", "debt_score", "ownership_score"]
   },
-  "SOCIAL_SENTIMENT": {
-  "prompt": "Analyze social discussions (Reddit/Twitter/blogs) about {{TICKER}} around {{TIME}}. Score retail investor sentiment from 10 (extremely bullish) to -10 (extremely bearish) based on: 1) Short-term price speculation 2) Long-term growth conviction 3) Technical analysis mentions 4) Meme stock potential 5) Short interest trends. Return ONLY: {\"SOCIAL_SENTIMENT\": <score>, \"DOMINANT_PLATFORM\": \"<main_source>\", \"BULLISH_PCT\": <%>, \"BEARISH_PCT\": <%>}",
-  "search": "\"{{TICKER}}\" stock discussion (reddit OR twitter OR blog) {{TIME}}",
-  "api": "web",
-  "type": "aggregate"
+  "REGULATORY_RISK_ANALYSIS": {
+    "prompt": "Assess regulatory news impact for {{TICKER}} around {{TIME}}. Generate scores from 100 (regulatory tailwinds) to -100 (existential threats) considering: 1) Antitrust investigations 2) FDA approvals/rejections 3) Environmental fines 4) International trade rulings 5) Lobbying disclosures. Return EXACTLY: {\"antitrust_score\": <int -100 to 100>, \"fda_score\": <int -100 to 100>, \"environmental_score\": <int -100 to 100>, \"trade_score\": <int -100 to 100>, \"lobbying_score\": <int -100 to 100>}",
+    "search": "\"{{TICKER}}\" regulation OR lawsuit OR fda OR sec {{TIME}} -social -forum",
+    "api": "news",
+    "type": "aggregate",
+    "output_keys": ["antitrust_score", "fda_score", "environmental_score", "trade_score", "lobbying_score"]
+  },
+  "WSB_SENTIMENT": {
+    "prompt": "Gauge WallStreetBets sentiment for {{TICKER}} during {{TIME}}. Generate scores from 100 (meme frenzy) to -100 (bagholder panic) based on: 1) YOLO call volume 2) Short squeeze mentions 3) Diamond hand references 4) Gain/loss porn posts 5) FOMO intensity. Return EXACTLY: {\"yolo_score\": <int -100 to 100>, \"squeeze_score\": <int -100 to 100>, \"diamond_hands_score\": <int -100 to 100>, \"gain_loss_score\": <int -100 to 100>, \"fomo_score\": <int -100 to 100>}",
+    "search": "\"{{TICKER}}\" site:reddit.com/r/wallstreetbets {{TIME}}",
+    "api": "web",
+    "type": "aggregate",
+    "output_keys": ["yolo_score", "squeeze_score", "diamond_hands_score", "gain_loss_score", "fomo_score"]
+  },
+  "TECHNICAL_ANALYSIS_DISCUSSION": {
+    "prompt": "Analyze technical trading discussions for {{TICKER}} around {{TIME}}. Generate conviction scores from 100 (strong breakout) to -100 (breakdown imminent) based on: 1) RSI extremes 2) Moving average crosses 3) Volume spikes 4) Support/resistance tests 5) Options flow anomalies. Return EXACTLY: {\"rsi_score\": <int -100 to 100>, \"ma_cross_score\": <int -100 to 100>, \"volume_score\": <int -100 to 100>, \"support_resistance_score\": <int -100 to 100>, \"options_flow_score\": <int -100 to 100>}",
+    "search": "\"{{TICKER}}\" (technical analysis OR TA) (twitter OR stocktwits) {{TIME}}",
+    "api": "web",
+    "type": "aggregate",
+    "output_keys": ["rsi_score", "ma_cross_score", "volume_score", "support_resistance_score", "options_flow_score"]
+  },
+  "INDUSTRY_TREND_IMPACT": {
+    "prompt": "Evaluate industry-wide news relevance to {{TICKER}} during {{TIME}}. Generate scores from 100 (market leader advantage) to -100 (technological obsolescence) considering: 1) Disruptive innovations 2) Supply chain developments 3) Commodity price swings 4) Consumer trend shifts 5) New market entrants. Return EXACTLY: {\"innovation_score\": <int -100 to 100>, \"supply_chain_score\": <int -100 to 100>, \"commodity_score\": <int -100 to 100>, \"consumer_score\": <int -100 to 100>, \"market_entrants_score\": <int -100 to 100>}",
+    "search": "\"{{TICKER}} industry\" trends OR disruption OR innovation {{TIME}}",
+    "api": "news",
+    "type": "aggregate",
+    "output_keys": ["innovation_score", "supply_chain_score", "commodity_score", "consumer_score", "market_entrants_score"]
+  },
+  "LONGS_VS_SHORTS": {
+    "prompt": "Measure institutional positioning for {{TICKER}} around {{TIME}}. Generate scores from 100 (strong long conviction) to -100 (aggressive short thesis) based on: 1) Hedge fund disclosures 2) Short interest changes 3) Conviction reports 4) Insider activity 5) Ownership changes. Return EXACTLY: {\"hedge_fund_score\": <int -100 to 100>, \"short_interest_score\": <int -100 to 100>, \"conviction_score\": <int -100 to 100>, \"insider_score\": <int -100 to 100>, \"ownership_change_score\": <int -100 to 100>}",
+    "search": "\"{{TICKER}}\" (\"long thesis\" OR \"short thesis\") {{TIME}} -retail -tutorial",
+    "api": "web",
+    "type": "aggregate",
+    "output_keys": ["hedge_fund_score", "short_interest_score", "conviction_score", "insider_score", "ownership_change_score"]
+  },
+  "CEO_COMMUNICATION_IMPACT": {
+    "prompt": "Assess market reaction to {{TICKER}} leadership communications during {{TIME}}. Generate scores from 100 (investor confidence boost) to -100 (credibility crisis) based on: 1) Earnings call tone 2) Guidance changes 3) Media interviews 4) Strategic clarity 5) Executive turnover. Return EXACTLY: {\"call_tone_score\": <int -100 to 100>, \"guidance_score\": <int -100 to 100>, \"media_score\": <int -100 to 100>, \"strategy_score\": <int -100 to 100>, \"executive_score\": <int -100 to 100>}",
+    "search": "\"{{TICKER}} CEO\" OR \"{{TICKER}} CFO\" (interview OR earnings call) {{TIME}}",
+    "api": "news",
+    "type": "aggregate",
+    "output_keys": ["call_tone_score", "guidance_score", "media_score", "strategy_score", "executive_score"]
+  },
+  "SUPPLY_CHAIN_RISK": {
+    "prompt": "Analyze supply chain exposure for {{TICKER}} during {{TIME}}. Generate scores from 0 (no risk) to 100 (critical failure likely) considering: 1) Geopolitical risks 2) Single-source dependencies 3) Inventory ratios 4) Logistics disruptions 5) Supplier options. Return EXACTLY: {\"geopolitical_risk\": <int 0 to 100>, \"supplier_dependency_risk\": <int 0 to 100>, \"inventory_risk\": <int 0 to 100>, \"logistics_risk\": <int 0 to 100>, \"supplier_options_risk\": <int 0 to 100>}",
+    "search": "\"{{TICKER}}\" (\"supply chain\" OR logistics OR inventory) {{TIME}}",
+    "api": "news",
+    "type": "aggregate",
+    "output_keys": ["geopolitical_risk", "supplier_dependency_risk", "inventory_risk", "logistics_risk", "supplier_options_risk"]
+  },
+  "RETAIL_TRADER_SENTIMENT": {
+    "prompt": "Quantify retail trader sentiment for {{TICKER}} during {{TIME}}. Generate scores from 100 (extreme bullish) to -100 (panic selling) based on: 1) Platform trends 2) Discussion sentiment 3) Holding patterns 4) Option activity 5) Volume anomalies. Return EXACTLY: {\"platform_trend_score\": <int -100 to 100>, \"discussion_score\": <int -100 to 100>, \"holding_pattern_score\": <int -100 to 100>, \"options_activity_score\": <int -100 to 100>, \"volume_anomaly_score\": <int -100 to 100>}",
+    "search": "\"{{TICKER}}\" (robinhood OR webull) sentiment {{TIME}}",
+    "api": "web",
+    "type": "aggregate",
+    "output_keys": ["platform_trend_score", "discussion_score", "holding_pattern_score", "options_activity_score", "volume_anomaly_score"]
+  },
+  "ENVIRONMENTAL_RISK": {
+    "prompt": "Evaluate ESG controversies impacting {{TICKER}} around {{TIME}}. Generate scores from 0 (no risk) to 100 (severe reputational damage) based on: 1) Carbon footprint 2) ESG downgrades 3) Climate litigation 4) Regulatory actions 5) Sustainable adoption. Return EXACTLY: {\"carbon_risk\": <int 0 to 100>, \"esg_downgrade_risk\": <int 0 to 100>, \"litigation_risk\": <int 0 to 100>, \"regulatory_risk\": <int 0 to 100>, \"sustainability_risk\": <int 0 to 100>}",
+    "search": "\"{{TICKER}}\" (ESG OR environmental OR sustainability) risk {{TIME}}",
+    "api": "news",
+    "type": "aggregate",
+    "output_keys": ["carbon_risk", "esg_downgrade_risk", "litigation_risk", "regulatory_risk", "sustainability_risk"]
   }
 }
