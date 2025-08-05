@@ -70,7 +70,7 @@ services:
       - ./feeder/data:/feeder/data
     depends_on:
       - cache
-    command: ["python", "app/main.py", "--num-points", "16"]
+    command: ["python", "app/main.py", "--num-points", "64"]
     env_file:
       - .env
       - keys.env
