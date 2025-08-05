@@ -1,5 +1,6 @@
 from app.stocker import Stocker
+import asyncio
 
 if __name__ == "__main__":
     stocker = Stocker()
-    stocker.run_worker()
+    asyncio.run(stocker.run_worker())

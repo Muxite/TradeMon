@@ -5,10 +5,27 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ed6818cb-cade-4e89-a9e6-1749f1bbc6f7" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/feeder/.dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feeder/app/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feeder/app/feeder.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feeder/app/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feeder/data/tickers/tickers.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feeder/pyproject.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feeder/requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/feeder/tests/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/stocker/tests/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/TradeMon.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/TradeMon.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reader/app/prompt_templates.json" beforeDir="false" afterPath="$PROJECT_DIR$/reader/app/prompt_templates.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/reader/app/reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/reader/app/reader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/shared/payloads.py" beforeDir="false" afterPath="$PROJECT_DIR$/shared/payloads.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/shared/performance.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/stocker/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/stocker/app/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/stocker/app/prompt_templates.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/stocker/app/stocker.py" beforeDir="false" afterPath="$PROJECT_DIR$/stocker/app/stocker.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,15 +90,16 @@
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\mukch\projects\TradeMon" />
+      <recent name="C:\Users\mukch\projects\TradeMon\stocker\tests" />
       <recent name="C:\Users\mukch\projects\TradeMon\worker\tests" />
       <recent name="C:\Users\mukch\projects\TradeMon\worker" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\mukch\projects\TradeMon\feeder\data\tickers" />
       <recent name="C:\Users\mukch\projects\TradeMon\worker\tests" />
       <recent name="C:\Users\mukch\projects\TradeMon\worker\app" />
       <recent name="C:\Users\mukch\projects\TradeMon\shared" />
       <recent name="C:\Users\mukch\projects\TradeMon\tester\test" />
-      <recent name="C:\Users\mukch\projects\TradeMon\tester" />
     </key>
   </component>
   <component name="RunManager" selected="Docker.docker-compose.yml.worker: Compose Deployment">
@@ -194,7 +212,12 @@
       <workItem from="1753484174041" duration="20934000" />
       <workItem from="1753556245434" duration="20820000" />
       <workItem from="1753916185459" duration="10567000" />
-      <workItem from="1754006536908" duration="9063000" />
+      <workItem from="1754006536908" duration="9093000" />
+      <workItem from="1754113047799" duration="5489000" />
+      <workItem from="1754171835018" duration="16003000" />
+      <workItem from="1754259025853" duration="2567000" />
+      <workItem from="1754289331495" duration="18274000" />
+      <workItem from="1754346411193" duration="7512000" />
     </task>
     <servers />
   </component>

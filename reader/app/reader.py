@@ -229,6 +229,18 @@ class Reader(Worker):
         sums = {}
         counts = {}
 
+
+        template = self.prompt_templates.get(goal)
+        if not template or not template.get("output_keys"):
+            self.logger.error(f"No template or output keys found for goal: {goal}")
+            return {}
+
+        expected_keys = template["output_keys"]
+
+        for key in expected_keys:
+            sums[key] = 0.0
+            counts[key] = 0
+
         results = await self.search_internet(date, ticker, goal, count)
 
         for result in results:
@@ -237,19 +249,19 @@ class Reader(Worker):
                 answer = await self.llm_extract(date, ticker, goal, to_read)
                 try:
                     for metric, value in answer.items():
-                        try:
-                            num_value = float(value)
-                            sums[metric] = sums.get(metric, 0) + num_value
-                            counts[metric] = counts.get(metric, 0) + 1
-                        except (ValueError, TypeError):
-                            self.logger.warning(f"Invalid value for metric {metric}: {value}")
+                        if metric in expected_keys:
+                            try:
+                                num_value = float(value)
+                                sums[metric] = sums.get(metric, 0) + num_value
+                                counts[metric] = counts.get(metric, 0) + 1
+                            except (ValueError, TypeError):
+                                self.logger.warning(f"Invalid value for metric {metric}: {value}")
                 except (AttributeError, TypeError):
                     self.logger.warning(f"Invalid answer format from LLM: {answer}")
 
         averages = {
-            metric: sums[metric] / counts[metric]
-            for metric in sums
-            if counts.get(metric, 0) > 0
+            metric: sums[metric] / counts[metric] if counts[metric] > 0 else 0
+            for metric in expected_keys
         }
 
         return averages

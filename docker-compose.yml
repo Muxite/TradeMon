@@ -41,6 +41,7 @@ services:
       - ./reader/tests:/reader/tests
     depends_on:
       - inference
+      - cache
     command: ["python", "app/main.py"]
     env_file:
       - .env
@@ -54,7 +55,22 @@ services:
       - ./SHARED:/stocker/shared
       - ./stocker/app:/stocker/app
       - ./stocker/tests:/stocker/tests
+    depends_on:
+      - cache
     command: ["python", "app/main.py"]
+    env_file:
+      - .env
+      - keys.env
+
+  feeder:
+    build:
+      context: feeder
+      dockerfile: .dockerfile
+    volumes:
+      - ./feeder/data:/feeder/data
+    depends_on:
+      - cache
+    command: ["python", "app/main.py", "--num-points", "16"]
     env_file:
       - .env
       - keys.env

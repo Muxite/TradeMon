@@ -1,0 +1,23 @@
+ [project]
+ name = "feeder"
+ version = "0.1.0"
+ description = "TradeMon service that gathers data."
+ requires-python = ">=3.8"
+
+ dependencies = [
+   "pytest",
+   "pytest-repeat",
+   "aiohttp",
+   "asyncio",
+   "pytest-asyncio",
+   "redis",
+   "tensorflow-cpu"
+ ]
+
+ [tool.setuptools]
+ package-dir = {"" = "."}
+ packages = ["app", "tests"]
+
+ [tool.pytest.ini_options]
+ log_cli = true
+ log_cli_level = "INFO"

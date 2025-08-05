@@ -31,7 +31,7 @@ def make_llm_payload(template, time, ticker, html_content) -> dict:
     }
 
 
-def make_search_payload(template, date, ticker, count, period=90) -> dict:
+def make_search_payload(template, date, ticker, count, period=365) -> dict:
     """
     Make a payload for the search API.
     :param template: Use template from the prompt templates.json file.
